@@ -171,15 +171,6 @@ void setup()
 void loop(){
   delay(random(2000, 8000));
   int roll = random(1, 100);
-  if (digitalRead(2) == LOW)
-  {
-    // digitalWrite(LED_BUILTIN, HIGH);
-    roll = 1;
-  }
-  else
-  {
-    // digitalWrite(LED_BUILTIN, LOW);
-  }
   if (roll < 10) // change mood
   {
     int mood = 2;
