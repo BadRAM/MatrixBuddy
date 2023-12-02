@@ -1,5 +1,9 @@
 #include <LedControl.h>
 
+int BUTT1 = 2;
+int BUTT2 = 3;
+int BUTT3 = 4;
+
 int DIN = 11;
 int CS = 7;
 int CLK  = 13;
@@ -53,6 +57,34 @@ int Uncertain[4] ={
   B00010100,
   B00101000,
   B00000000
+};
+
+int Yawn1[4] ={
+  B00000000,
+  B00111100,
+  B00000000,
+  B00000000
+};
+
+int Yawn2[4] ={
+  B00000000,
+  B00111100,
+  B00111100,
+  B00000000
+};
+
+int Yawn3[4] ={
+  B00000000,
+  B00111100,
+  B00100100,
+  B00011000
+};
+
+int Yawn4[4] ={
+  B00111100,
+  B00100100,
+  B00100100,
+  B00011000
 };
 
 int Eyes[4] ={
@@ -151,27 +183,58 @@ void wink()
   delay(50);
 }
 
-void setup()
+void yawn()
 {
-  lc.shutdown(0,false);
-  lc.setIntensity(0,0);
-  lc.clearDisplay(0);
-
-  CurrentEyes = &Eyes;
-  CurrentMouth = &Smile;
-
+  drawMouth(Yawn1);
+  delay(100);
+  drawMouth(Yawn2);
+  delay(100);
+  drawEyes(Squint);
+  drawMouth(Yawn3);
+  delay(100);
+  drawMouth(Yawn4);
+  delay(2000);
+  drawMouth(Yawn3);
+  delay(200);
+  drawMouth(Yawn4);
+  delay(200);
+  drawMouth(Yawn3);
+  delay(100);
+  drawMouth(Yawn2);
+  delay(100);
+  drawMouth(Yawn1);
   drawEyes(*CurrentEyes);
+  delay(100);
   drawMouth(*CurrentMouth);
-
-  pinMode(2, INPUT_PULLUP);
-
-  randomSeed(analogRead(A7));
+  blink();
+  delay(50);
+  blink();
+  drawEyes(*CurrentEyes);
 }
-  
-void loop(){
-  delay(random(2000, 8000));
+
+void randomAction()
+{
   int roll = random(1, 100);
-  if (roll < 10) // change mood
+
+  if(digitalRead(BUTT1) == LOW) roll = 1;
+  if(digitalRead(BUTT2) == LOW) roll = 2;
+  if(digitalRead(BUTT3) == LOW) roll = 3;
+
+  if (roll == 1)
+  {
+    CurrentMouth = &Cat;
+    Happy = true;
+  }
+  else if (roll == 2)
+  {
+    yawn();
+  }
+  else if (roll == 3)
+  {
+    CurrentMouth = &Smile;
+    Happy = true;
+  }
+  else if (roll < 15) // change mood
   {
     int mood = 2;
 
@@ -216,7 +279,7 @@ void loop(){
         break;
     }
   }
-  else if (roll < 30) // Look in random direction
+  else if (roll < 35) // Look in random direction
   {
     switch (random(1,4))
     {
@@ -233,9 +296,9 @@ void loop(){
         drawEyes(LookUp);
         break;
     }
-    delay(random(100, 1000));
+    delay(random(500, 2000));
   }
-  else if (roll < 40) // Emotion event. Wink if happy, squint if not.
+  else if (roll < 45) // Emotion event. Wink if happy, squint if not.
   {
     if (Happy)
     {
@@ -247,21 +310,52 @@ void loop(){
       delay(random(800, 4000));
     }
   }
-  else if (roll < 50) // double blink
-  {
-    blink();
-    delay(50);
-    blink();
-  }
-  else if (roll == 51)
-  {
-    CurrentMouth = &Cat;
-    Happy = true;
-  }
   else // blink most of the time
   {
     blink();
+    while(random(1, 6) == 1)
+    {
+      delay(50);
+      blink();
+    }
   }
   drawEyes(*CurrentEyes);
   drawMouth(*CurrentMouth);
 }
+
+void setup()
+{
+  lc.shutdown(0,false);
+  lc.setIntensity(0,0);
+  lc.clearDisplay(0);
+
+  CurrentEyes = &Eyes;
+  CurrentMouth = &Smile;
+
+  drawEyes(*CurrentEyes);
+  drawMouth(*CurrentMouth);
+
+  pinMode(BUTT1, INPUT_PULLUP);
+  pinMode(BUTT2, INPUT_PULLUP);
+  pinMode(BUTT3, INPUT_PULLUP);
+
+  delay(1000);
+  if(random(1,3) == 1)
+  {
+    wink();
+  }
+  else
+  {
+    yawn();
+  }
+
+  randomSeed(analogRead(A7));
+}
+  
+void loop()
+{
+  delay(random(2000, 8000));
+  randomAction();
+}
+
+
