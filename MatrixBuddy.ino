@@ -187,13 +187,29 @@ void sleep()
   delay(2000);
   lc.clearDisplay(0);
   unsigned long litSince = 0;
-  while (LightLevel >= SleepThreshValues[WakeThresh] && millis() - litSince >= 4000)
+  while (true)
   {
     updateLightLevel();
-    if (LightLevel >= SleepThreshValues[WakeThresh])
+    if (LightLevel < SleepThreshValues[WakeThresh])
     {
-
+      if (litSince == 0)
+      {
+        litSince = millis();
+      }
+      else if (millis() - litSince >= 4000)
+      {
+        break;
+      }
     }
+    else
+    {
+      litSince = 0;
+    }
+
+    Serial.print("litSince: ");
+    Serial.print(litSince);
+    Serial.print(", Lightlevel: ");
+    Serial.println(LightLevel);
     delay(500);
   }
   delay(1000);
@@ -543,6 +559,9 @@ void setup()
   Serial.begin(57600);
 
   Brightness = EEPROM.read(BrightnessAddr);
+  SleepThresh = EEPROM.read(SleepThreshAddr);
+  WakeThresh = EEPROM.read(WakeThreshAddr);
+  StrongMode = EEPROM.read(StrongModeAddr);
 
   lc.shutdown(0,false);
   lc.setIntensity(0, Brightness);
