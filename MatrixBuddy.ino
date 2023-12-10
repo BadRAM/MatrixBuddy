@@ -1,4 +1,5 @@
 #include <LedControl.h>
+#include <EEPROM.h>
 #include "SpriteData.h"
 
 #define LIGHT A0
@@ -17,6 +18,8 @@ LedControl lc=LedControl(DIN, CLK, CS,0);
 unsigned int Butt1Hist = 0;
 unsigned int Butt2Hist = 0;
 unsigned int Butt3Hist = 0;
+
+unsigned long LastButtonPress = 0;
 
 // animEvents contain a function pointer, an argument pointer, and 
 // a delay. arugmentless functions may be called by casting them
@@ -41,14 +44,23 @@ int ActionInterval = 2000;
 int LightLevel = 512;
 unsigned long LightWatchdog = 0;
 
-int Brightness = 0;
-int BrightnessAddr = 1;
-int SleepThresh = 960;
-int SleepThreshAddr = 2;
-int WakeThresh = 896;
-int WakeThreshAddr = 3;
+byte Brightness = 0;
+byte BrightnessAddr = 1;
+const int SleepThreshValues[16] = 
+{
+  128, 256, 384, 512, 
+  640, 768, 832, 896, 
+  928, 960, 976, 992, 
+  1008, 1016, 1020, 1024
+};
+byte SleepThresh = 8;
+byte SleepThreshAddr = 2;
+byte WakeThresh = 6;
+byte WakeThreshAddr = 3;
+bool StrongMode = false;
+byte StrongModeAddr = 4;
+
 bool Happy = true;
-bool StayHappy = false;
 
 int (*CurrentEyes)[4];
 int (*CurrentMouth)[4];
@@ -174,10 +186,14 @@ void sleep()
   drawEyes(Blink2);
   delay(2000);
   lc.clearDisplay(0);
-  delay(2000);
-  while (LightLevel >= WakeThresh)
+  unsigned long litSince = 0;
+  while (LightLevel >= SleepThreshValues[WakeThresh] && millis() - litSince >= 4000)
   {
     updateLightLevel();
+    if (LightLevel >= SleepThreshValues[WakeThresh])
+    {
+
+    }
     delay(500);
   }
   delay(1000);
@@ -190,6 +206,15 @@ void sleep()
   Happy = true;
   drawMouth(Smile);
   yawn();
+
+  // prevent instant random action
+  LastAction = millis();
+}
+
+void drawBarDisplay(int row, byte val)
+{
+  byte e = (8 - (val + 1 +(millis() % 200 > 100)) / 2);
+  lc.setRow(0, row, 0xFF << e);
 }
 
 void screenBrightnessConfig()
@@ -205,22 +230,105 @@ void screenBrightnessConfig()
 
   while (!buttonPressed(&Butt2Hist))
   {
-    byte e = (8 - (Brightness + 1 +(millis() % 200 > 100)) / 2);
-    lc.setRow(0, 6, 0xFF << e);
+    drawBarDisplay(6, Brightness);
 
     delay(5);
     updateButtons();
 
-    if (buttonPressed(&Butt1Hist)) Brightness--;
-    if (buttonPressed(&Butt3Hist)) Brightness++;
+    if (buttonPressed(&Butt1Hist) && Brightness != 0) Brightness--;
+    if (buttonPressed(&Butt3Hist) && Brightness != 15) Brightness++;
     Brightness = constrain(Brightness, 0, 15);
-    Serial.print("Brightness: ");
-    Serial.println(Brightness);
+
+    lc.setIntensity(0, Brightness);
   }
+
+  EEPROM.write(BrightnessAddr, Brightness);
+  Serial.println(EEPROM.read(BrightnessAddr));
 
   drawMouth(*CurrentMouth);
   openEyes();
   finishEvents();
+
+  // prevent instant random action
+  LastAction = millis();
+}
+
+void sleepThreshConfig()
+{
+  clearEvents();
+  drawEyes(*CurrentEyes);
+  drawMouth(*CurrentMouth);
+  closeEyes();
+  finishEvents();
+  updateButtons();
+  lc.clearDisplay(0);
+  drawEyes(SleepThreshIcon);
+
+  while (!buttonPressed(&Butt2Hist))
+  {
+    // byte e = (7 - (SleepThresh + 1) / 2);
+    // e = (((SleepThresh % 2) * 2) + 1) << e;
+    // lc.setRow(0, 6, e);
+
+    updateLightLevel();
+    for (int i = 15; i >= 0; i--)
+    {
+      if (LightLevel > SleepThreshValues[i])
+      {
+        drawBarDisplay(5, i);
+        break;
+      }
+    }
+
+    drawBarDisplay(6, SleepThresh);
+    drawBarDisplay(7, WakeThresh);
+
+    delay(5);
+    updateButtons();
+
+    if (buttonPressed(&Butt1Hist) && SleepThresh != 0) SleepThresh--;
+    if (buttonPressed(&Butt3Hist) && SleepThresh != 15) SleepThresh++;
+    SleepThresh = constrain(SleepThresh, 0, 15);
+    WakeThresh = SleepThresh - min(2, SleepThresh);
+
+    // Serial.print("SleepThresh: ");
+    // Serial.println(SleepThresh);
+  }
+
+  EEPROM.write(SleepThreshAddr, SleepThresh);
+  EEPROM.write(WakeThreshAddr, WakeThresh);
+  Serial.println(EEPROM.read(SleepThreshAddr));
+
+  drawMouth(*CurrentMouth);
+  openEyes();
+  finishEvents();
+
+  // prevent instant random action
+  LastAction = millis();
+}
+
+void toggleStrongMode()
+{
+  finishEvents();
+
+  if (!StrongMode)
+  {
+    Happy = true;
+    CurrentMouth = &Smile;
+    drawMouth(*CurrentMouth);
+    StrongMode = true;
+    wink();
+  }
+  else
+  {
+    Happy = true;
+    CurrentMouth = &Mischief;
+    drawMouth(*CurrentMouth);
+    StrongMode = false;
+    blink();
+  }
+
+  EEPROM.write(StrongModeAddr, StrongMode);
 
   // prevent instant random action
   LastAction = millis();
@@ -344,25 +452,25 @@ void updateEvents()
 
   if (millis() - prevEvent >= events[nextEvent].delay)
   {
-    Serial.print("event time, nextEvent: ");
-    Serial.print(nextEvent);
-    Serial.print(" delay: ");
-    Serial.print(events[nextEvent].delay);
+    // Serial.print("event time, nextEvent: ");
+    // Serial.print(nextEvent);
+    // Serial.print(" delay: ");
+    // Serial.print(events[nextEvent].delay);
     // Serial.print(" mil since lE: ");
     // Serial.print(millis() - prevEvent);
-    Serial.print(" lastEvent: ");
-    Serial.print(lastEvent);
-    Serial.print(" - ");
+    // Serial.print(" lastEvent: ");
+    // Serial.print(lastEvent);
+    // Serial.print(" - ");
 
     // do event
     if (events[nextEvent].arg == NULL)
     {
-      Serial.println("Called Event()");
+      // Serial.println("Called Event()");
       ((void*)*events[nextEvent].func);
     }
     else
     {
-      Serial.println("Called Event(arg)");
+      // Serial.println("Called Event(arg)");
       (*events[nextEvent].func)(*events[nextEvent].arg);
     }
 
@@ -417,6 +525,12 @@ void updateButtons()
   updateButton(BUTT1, &Butt1Hist);
   updateButton(BUTT2, &Butt2Hist);
   updateButton(BUTT3, &Butt3Hist);
+  if (buttonPressed(&Butt1Hist) || 
+      buttonPressed(&Butt1Hist) || 
+      buttonPressed(&Butt1Hist))
+  {
+    LastButtonPress = millis();
+  }
 }
 
 bool buttonPressed(int* history)
@@ -428,8 +542,10 @@ void setup()
 {
   Serial.begin(57600);
 
+  Brightness = EEPROM.read(BrightnessAddr);
+
   lc.shutdown(0,false);
-  lc.setIntensity(0,0);
+  lc.setIntensity(0, Brightness);
   lc.clearDisplay(0);
 
   pinMode(BUTT1, INPUT_PULLUP);
@@ -460,7 +576,7 @@ void loop()
 
   // update light level and check if sleepy time
   updateLightLevel();
-  if (LightLevel >= SleepThresh)
+  if (LightLevel >= SleepThreshValues[SleepThresh])
   {
     sleep();
     return;
@@ -471,6 +587,7 @@ void loop()
   if(buttonPressed(&Butt1Hist))
   {
     Serial.println("Butt 1 pressed");
+    sleepThreshConfig();
     //scratchChin();
     return;
   }
@@ -479,7 +596,7 @@ void loop()
   if(buttonPressed(&Butt2Hist))
   {
     Serial.println("Butt 2 pressed");
-    screenBrightnessConfig();
+    toggleStrongMode();
     return;
   }
 
@@ -487,6 +604,7 @@ void loop()
   if(buttonPressed(&Butt3Hist))
   {
     Serial.println("Butt 3 pressed");
+    screenBrightnessConfig();
     //screenBrightnessConfig();
     return;
   }

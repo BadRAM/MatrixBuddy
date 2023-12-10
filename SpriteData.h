@@ -158,3 +158,17 @@ const int BrightnessIcon[4] ={
   B00100000,
   B01010000
 };
+
+const int SleepThreshIcon[4] ={
+  B00000000,
+  B00100000,
+  B01000000,
+  B00100000
+};
+
+const int MaruEksu[4] ={
+  B00000000,
+  B01000101,
+  B10100010,
+  B01000101
+};
