@@ -80,6 +80,7 @@ void addEvent(void (*func)(int), int (*arg)[4], unsigned long delay)
   if (events[nextEvent].func == NULL)
   {
     lastEvent = nextEvent;
+    prevEvent = millis();
   }
   else
   {
@@ -169,7 +170,8 @@ void scratchChin()
 
 void updateLightLevel()
 {
-  LightLevel = (7 * LightLevel + analogRead(LIGHT)) / 8;
+  // LightLevel = analogRead(LIGHT);
+  LightLevel = (LightLevel + analogRead(LIGHT)) / 2;
   // Serial.println(LightLevel);
 }
 
@@ -178,7 +180,18 @@ void sleep()
   CurrentMouth = &Smile;
   yawn();
   finishEvents();
-  delay(500);
+  updateLightLevel();
+  delay(100);
+  updateLightLevel();
+  delay(100);
+  updateLightLevel();
+  delay(100);
+  updateLightLevel();
+  if (LightLevel < SleepThreshValues[SleepThresh])
+  {
+    return;
+  }
+  delay(200);
   drawEyes(Blink1);
   delay(250);
   drawMouth(SleepMouth);
@@ -389,6 +402,11 @@ void randomAction()
       mood = random(1, 6);
     }
 
+    if (StrongMode && mood >= 4)
+    {
+      mood = 3;
+    }
+
     switch (mood)
     {
       case 1:
@@ -434,7 +452,8 @@ void randomAction()
         drawEyes(LookUp);
         break;
     }
-    delay(random(500, 2000));
+    //delay(random(500, 2000));
+    addEvent(&drawEyes, CurrentEyes, random(500, 2000));
   }
   else if (roll < 45) // Emotion event. Wink if happy, squint if not.
   {
@@ -445,7 +464,8 @@ void randomAction()
     else
     {
       drawEyes(Squint);
-      delay(random(800, 4000));
+      addEvent(&drawEyes, CurrentEyes, random(800, 4000));
+      // delay(random(800, 4000));
     }
   }
   else // blink most of the time
@@ -453,12 +473,10 @@ void randomAction()
     blink();
     while(random(1, 6) == 1)
     {
-      delay(50);
+      addEvent(&drawEyes, CurrentEyes, 50);
       blink();
     }
   }
-  drawEyes(*CurrentEyes);
-  drawMouth(*CurrentMouth);
 }
 
 void updateEvents()
