@@ -1,0 +1,11 @@
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\bin\Debug\MatrixBuddyBridge.exe.config
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\bin\Debug\MatrixBuddyBridge.exe
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\bin\Debug\MatrixBuddyBridge.pdb
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.AssemblyReference.cache
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.SuggestedBindingRedirects.cache
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.Properties.Resources.resources
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.GenerateResource.cache
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.CoreCompileInputs.cache
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.exe
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.pdb
+C:\Users\Luke\Workspace\RiderProjects\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.Form1.resources
