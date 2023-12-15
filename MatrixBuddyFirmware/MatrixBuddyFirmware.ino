@@ -62,6 +62,11 @@ byte StrongModeAddr = 4;
 
 bool Happy = true;
 
+bool BridgeActive = false;
+unsigned long LastBridgeMessage = 0;
+unsigned long LastBridgeEyeClose = 0;
+bool SingMode = false;
+
 int (*CurrentEyes)[4];
 int (*CurrentMouth)[4];
 
@@ -629,6 +634,24 @@ void loop()
     return;
   }
 
+  if (BridgeActive)
+  {
+    if (millis() - LastBridgeMessage >= 1000)
+    {
+      BridgeActive = false;
+      drawMouth(*CurrentMouth);
+      drawEyes(*CurrentEyes);
+      SingMode = false;
+    }
+
+    if (millis() - LastBridgeEyeClose >= 600)
+    {
+      drawEyes(*CurrentEyes);
+    }
+    delay(5);
+    return; // early return to skip random actions
+  }
+
   // Do random event if time is right
   if (millis() - LastAction >= ActionInterval)
   {
@@ -647,26 +670,49 @@ void serialEvent() {
     // get the new byte:
     char inChar = (char)Serial.read();
 
-    // if we are being (s)canned for, return (a)cknowledge.
-    if (inChar == 's') 
+    switch (inChar)
     {
-      Serial.print("a");
+      case 's':
+        // (s)can, do nothing and (a)cknowledge
+        Serial.print("a"); // (a)cknowledge execution of command
+        break;
+      case '0':
+        if (BridgeActive)
+        {
+          drawMouth(*CurrentMouth);
+          drawEyes(*CurrentEyes);
+          SingMode = false;
+          BridgeActive = false;
+        }
+        break;
+      case '1':
+        SingMode = false;
+        drawMouth(Talk);
+        break;
+      case '2':
+      case '3':
+        if (SingMode)
+        {
+          drawMouth(Sing);
+          LastBridgeEyeClose = millis();
+        }
+        else
+        {
+          drawMouth(Yawn3);
+        }
+        break;
+      case '4':
+        SingMode = true;
+        drawMouth(Yawn4);
+        drawEyes(Squint);
+        LastBridgeEyeClose = millis();
+        break;
     }
 
-    // if we are being asked to smile, do so
-    else if (inChar == 'v') 
+    if ((inChar != 's') && (inChar != '0'))
     {
-      Happy = true;
-      CurrentMouth = &Smile;
-      drawMouth(*CurrentMouth);
-    }
-
-    // if we are being asked to talk, do so
-    else if (inChar == 'o') 
-    {
-      Happy = true;
-      CurrentMouth = &Talk;
-      drawMouth(*CurrentMouth);
+      BridgeActive = true;
+      LastBridgeMessage = millis();
     }
   }
 }

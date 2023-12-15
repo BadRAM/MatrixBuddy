@@ -63,11 +63,12 @@
             this.AudioSelector.Size = new System.Drawing.Size(354, 21);
             this.AudioSelector.TabIndex = 3;
             this.AudioSelector.DropDown += new System.EventHandler(this.AudioSelector_DropDown);
-            this.AudioSelector.SelectedIndexChanged += new System.EventHandler(this.AudioSelector_SelectedIndexChanged_1);
+            this.AudioSelector.SelectedIndexChanged += new System.EventHandler(this.AudioSelector_SelectedIndexChanged);
             // 
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(12, 39);
+            this.progressBar1.MarqueeAnimationSpeed = 10000;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(353, 10);
             this.progressBar1.TabIndex = 4;

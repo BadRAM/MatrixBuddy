@@ -12,6 +12,20 @@ const int Talk[4] ={
   B00000000
 };
 
+const int Sing[4] ={
+  B00111100,
+  B00100100,
+  B00011000,
+  B00000000
+};
+
+const int TalkShut[4] ={
+  B00000000,
+  B00011000,
+  B00000000,
+  B00000000
+};
+
 const int Mischief[4] ={
   B00000000,
   B00101010,

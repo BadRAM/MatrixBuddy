@@ -33,11 +33,22 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="CoreAudio, Version=2023.8.18.121, Culture=neutral, processorArchitecture=MSIL">
+          <HintPath>packages\CoreAudio.1.37.0\lib\net481\CoreAudio.dll</HintPath>
+        </Reference>
         <Reference Include="CSCore, Version=1.2.1.2, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL">
           <HintPath>packages\CSCore.1.2.1.2\lib\net35-client\CSCore.dll</HintPath>
         </Reference>
+        <Reference Include="mscorlib" />
         <Reference Include="System"/>
+        <Reference Include="System.ComponentModel.Composition" />
         <Reference Include="System.Core"/>
+        <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.InteropServices, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>packages\System.Runtime.InteropServices.4.3.0\lib\net463\System.Runtime.InteropServices.dll</HintPath>
+        </Reference>
         <Reference Include="System.Xml.Linq"/>
         <Reference Include="System.Data.DataSetExtensions"/>
         <Reference Include="Microsoft.CSharp"/>
