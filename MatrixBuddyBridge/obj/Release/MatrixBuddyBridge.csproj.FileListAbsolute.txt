@@ -1,0 +1,15 @@
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\MatrixBuddyBridge.exe.config
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\MatrixBuddyBridge.exe
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\MatrixBuddyBridge.pdb
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\CoreAudio.dll
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\CSCore.dll
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Release\CSCore.xml
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.csproj.AssemblyReference.cache
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.csproj.SuggestedBindingRedirects.cache
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.Form1.resources
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.Properties.Resources.resources
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.csproj.GenerateResource.cache
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.csproj.CoreCompileInputs.cache
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.csproj.CopyComplete
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.exe
+C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Release\MatrixBuddyBridge.pdb

@@ -49,8 +49,9 @@ namespace MatrixBuddyBridge
             
             _serialPort = new SerialPort();
             _serialPort.BaudRate = 57600;
+            _serialPort.ReadTimeout = 500;
             
-            ScanSerial();
+            //ScanSerial();
             ScanAudioSources();
             
             _stopwatch.Start();
@@ -98,7 +99,7 @@ namespace MatrixBuddyBridge
                     {
                         _serialPort.Write("1");
                     }
-                    else if (sample > 0.75f && sample > _prevSamples.Average())
+                    else if (sample > 0.7f && sample > _prevSamples.Average())
                     {
                         _serialPort.Write("4");
                     }
@@ -138,32 +139,35 @@ namespace MatrixBuddyBridge
         {
             Console.WriteLine($"Scanning {SerialPort.GetPortNames().Length} ports...");
             ScanResult.Text = $"Scanning {SerialPort.GetPortNames().Length} ports...";
-
-            foreach (string portName in SerialPort.GetPortNames())
+            
+            for (int i = 0; i < 10; i++)
             {
-                Console.WriteLine($" - {portName}");
-                if (_serialPort.IsOpen)
+                foreach (string portName in SerialPort.GetPortNames())
                 {
-                    _serialPort.Close();
-                    Thread.Sleep(50);
-                }
-                _serialPort.PortName = portName;
-                try
-                {
-                    _serialPort.Open();
-                    
-                    _serialPort.Write("s");
-                    
-                    Thread.Sleep(100);
-
-                    if (_serialPort.ReadChar() == 'a')
+                    Console.WriteLine($" - {portName} attempt {i}");
+                    if (_serialPort.IsOpen)
                     {
-                        ScanResult.Text = $"Connected on {portName}";
-                        Console.WriteLine($"Connected on {portName}");
-                        return;
+                        _serialPort.Close();
+                        Thread.Sleep(50);
                     }
+                    _serialPort.PortName = portName;
+                    try
+                    {
+                        _serialPort.Open();
+                    
+                        _serialPort.Write("s");
+                    
+                        Thread.Sleep(100);
+                    
+                        if (_serialPort.ReadChar() == 'a')
+                        {
+                            ScanResult.Text = $"Connected on {portName}";
+                            Console.WriteLine($"Connected on {portName}");
+                            return;
+                        }
+                    }
+                    catch (Exception exception) { }
                 }
-                catch (Exception exception) { }
             }
             
             _serialPort.Close();

@@ -567,9 +567,13 @@ void setup()
   Serial.begin(57600);
 
   Brightness = EEPROM.read(BrightnessAddr);
+  if (Brightness == 255) Brightness = 0;
   SleepThresh = EEPROM.read(SleepThreshAddr);
+  if (SleepThresh == 255) SleepThresh = 8;
   WakeThresh = EEPROM.read(WakeThreshAddr);
+  if (WakeThresh == 255) WakeThresh = 6;
   StrongMode = EEPROM.read(StrongModeAddr);
+  if (StrongMode == 255) StrongMode = 0;
 
   lc.shutdown(0,false);
   lc.setIntensity(0, Brightness);
