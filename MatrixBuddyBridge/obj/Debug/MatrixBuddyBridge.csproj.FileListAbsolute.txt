@@ -24,3 +24,7 @@ C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Debug\CoreAudio.dll
 C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Debug\CSCore.dll
 C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\bin\Debug\CSCore.xml
 C:\Users\Luke\Workspace\MatrixBuddy\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.CopyComplete
+C:\Users\dgame\Documents\MatrixBuddy\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.AssemblyReference.cache
+C:\Users\dgame\Documents\MatrixBuddy\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.csproj.SuggestedBindingRedirects.cache
+C:\Users\dgame\Documents\MatrixBuddy\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.exe
+C:\Users\dgame\Documents\MatrixBuddy\MatrixBuddyBridge\obj\Debug\MatrixBuddyBridge.pdb
