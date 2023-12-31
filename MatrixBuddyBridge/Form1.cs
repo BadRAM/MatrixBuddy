@@ -80,7 +80,7 @@ namespace MatrixBuddyBridge
                 {
                     _serialPort.Write("0");
                 }
-                else if (_prevSamples.Average() < 0.5) // talk mode
+                else if (_prevSamples.Average() < trackBar1.Value / 100.0) // talk mode
                 {
                     _mouthOpen = false;
                     if (sample > _prevSamples.Average())
