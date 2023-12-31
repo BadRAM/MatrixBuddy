@@ -191,6 +191,8 @@ void sleep()
   while (true)
   {
     updateLightLevel();
+    updateButtons();
+
     if (LightLevel < SleepThreshValues[WakeThresh])
     {
       if (litSince == 0)
@@ -205,6 +207,11 @@ void sleep()
     else
     {
       litSince = 0;
+    }
+
+    if (buttonPressed(&Butt1Hist))
+    {
+      sleepThreshConfig(false);
     }
 
     // Serial.print("litSince: ");
@@ -270,13 +277,17 @@ void screenBrightnessConfig()
   LastAction = millis();
 }
 
-void sleepThreshConfig()
+void sleepThreshConfig(bool anim)
 {
-  clearEvents();
-  drawEyes(*CurrentEyes);
-  drawMouth(*CurrentMouth);
-  closeEyes();
-  finishEvents();
+  if (anim)
+  {
+    clearEvents();
+    drawEyes(*CurrentEyes);
+    drawMouth(*CurrentMouth);
+    closeEyes();
+    finishEvents();
+  }
+
   updateButtons();
   lc.clearDisplay(0);
   drawEyes(SleepThreshIcon);
@@ -316,9 +327,18 @@ void sleepThreshConfig()
   EEPROM.write(WakeThreshAddr, WakeThresh);
   // Serial.println(EEPROM.read(SleepThreshAddr));
 
-  drawMouth(*CurrentMouth);
-  openEyes();
-  finishEvents();
+
+
+  if (anim)
+  {
+    drawMouth(*CurrentMouth);
+    openEyes();
+    finishEvents();
+  }
+  else
+  {
+    lc.clearDisplay(0);
+  }
 
   // prevent instant random action
   LastAction = millis();
@@ -359,11 +379,10 @@ void randomAction()
   // if(digitalRead(BUTT2) == LOW) roll = 2;
   // if(digitalRead(BUTT3) == LOW) roll = 3;
 
-  if (roll == 1)
+  if (roll == 1 && Happy == true)
   {
-    CurrentMouth = &Cat;
-    Happy = true;
-    drawMouth(*CurrentMouth);
+    addEvent(&drawMouth, &Cat, 0);
+    addEvent(&drawMouth, CurrentMouth, 2000);
   }
   else if (roll == 2)
   {
@@ -550,8 +569,8 @@ void updateButtons()
   updateButton(BUTT2, &Butt2Hist);
   updateButton(BUTT3, &Butt3Hist);
   if (buttonPressed(&Butt1Hist) || 
-      buttonPressed(&Butt1Hist) || 
-      buttonPressed(&Butt1Hist))
+      buttonPressed(&Butt2Hist) || 
+      buttonPressed(&Butt3Hist))
   {
     LastButtonPress = millis();
   }
@@ -618,7 +637,7 @@ void loop()
   if(buttonPressed(&Butt1Hist))
   {
     // Serial.println("Butt 1 pressed");
-    sleepThreshConfig();
+    sleepThreshConfig(true);
     return;
   }
 
