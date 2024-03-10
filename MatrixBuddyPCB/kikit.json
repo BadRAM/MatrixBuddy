@@ -1,0 +1,15 @@
+{
+    "layout": {
+        "hspace": "3mm",
+        "cols": "2"
+    },
+    "tabs": {
+        "type": "annotation"
+    },
+    "cuts": {
+        "type": "mousebites"
+    },
+    "framing": {
+        "type": "railstb"
+    }
+}

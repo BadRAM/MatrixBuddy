@@ -1,5 +1,4 @@
 #include <LedControl.h>
-#include <EEPROM.h>
 #include "SpriteData.h"
 
 #define LIGHT A0

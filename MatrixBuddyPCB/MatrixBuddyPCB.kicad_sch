@@ -1586,9 +1586,18 @@
 
   (no_connect (at 210.82 95.25) (uuid 2f2b4f1e-88bd-4c9a-b5d7-bda2e04c6bdb))
   (no_connect (at 210.82 87.63) (uuid 33730c49-46fa-4dbf-8488-b1eb374db0f4))
+  (no_connect (at 209.55 146.05) (uuid 42cf79c5-f0f6-429a-a36c-93e41c101bf0))
+  (no_connect (at 228.6 160.02) (uuid 5b788fd1-68e5-401f-90cc-df66abfc50a4))
+  (no_connect (at 229.87 115.57) (uuid 6a3017fd-e4b1-44d0-b3de-dec9df72f1a5))
+  (no_connect (at 233.68 115.57) (uuid 6c2ec002-e8c7-49c1-9f1f-9f2cbca6d675))
+  (no_connect (at 226.06 115.57) (uuid 7c0e5b37-c3c8-4945-95ed-2aa24954e612))
   (no_connect (at 210.82 97.79) (uuid 9a54e8c1-6e76-47d2-9faf-c58ada503ec6))
   (no_connect (at 210.82 82.55) (uuid b127a632-4976-487d-8327-fe18dd7b35aa))
+  (no_connect (at 233.68 160.02) (uuid b17fc6e3-46c5-4da1-bf74-c22ba6134385))
+  (no_connect (at 209.55 149.86) (uuid b4abbc24-8eb7-44b2-be81-ee72f1743359))
+  (no_connect (at 237.49 115.57) (uuid b78cc5d2-849d-49cf-80ee-cb1efc02508b))
   (no_connect (at 210.82 92.71) (uuid c50753c7-4452-4a6a-afbe-1b31b053fee1))
+  (no_connect (at 251.46 149.86) (uuid ed6e406c-5239-49de-9e7e-4af1fb2cb5bb))
 
   (wire (pts (xy 132.08 97.79) (xy 199.39 97.79))
     (stroke (width 0) (type default))
@@ -2015,6 +2024,12 @@
     (fill (type none))
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 97111899-aa53-46d8-adb7-06c3ebf196b0)
+  )
+
+  (text "MAJOR ERROR:\nMOSI and CS lines \nto 4104 swapped\nCORRECT PINMAP:\nCS   - 10\nMOSI -  9\nSCK  -  8"
+    (at 290.83 109.22 0)
+    (effects (font (size 2.54 2.54) (thickness 0.254) bold (color 190 2 19 1)) (justify left bottom))
+    (uuid 0d0cd016-3aac-4b62-acd9-d416c036ef84)
   )
 
   (label "BUTT1_B2" (at 133.35 92.71 0) (fields_autoplaced)
