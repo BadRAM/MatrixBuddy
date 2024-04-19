@@ -2,11 +2,11 @@
 #include "LedControl.h"
 #include "SpriteData.h"
 
-#define LIGHT A0
+#define LIGHT 0
 
-#define BUTT1 A1
-#define BUTT2 A2
-#define BUTT3 A3
+#define BUTT1 1
+#define BUTT2 2
+#define BUTT3 3
 
 #define EVENTQUEUELEN 64
 
@@ -40,6 +40,8 @@ unsigned long prevEvent = 0;
 
 unsigned long LastAction = 0;
 int ActionInterval = 2000;
+unsigned long LastFrame = 0;
+int FrameInterval = 10;
 
 int LightLevel = 512;
 unsigned long LightWatchdog = 0;
@@ -48,10 +50,10 @@ byte Brightness = 0;
 byte BrightnessAddr = 1;
 const int SleepThreshValues[16] = 
 {
-  128, 256, 384, 512, 
-  640, 768, 832, 896, 
-  928, 960, 976, 992, 
-  1008, 1016, 1020, 1024
+  512, 1024, 1536, 2048, 
+  2560, 3072, 3328, 3584, 
+  3712, 3840, 3904, 3968, 
+  4032, 4064, 4080, 4096
 };
 byte SleepThresh = 8;
 byte SleepThreshAddr = 2;
@@ -70,17 +72,17 @@ bool SingMode = false;
 int (*CurrentEyes)[4];
 int (*CurrentMouth)[4];
 
-byte FrameBuffer[8] = 
-{
-  0b11110011,
-  0b10000001,
-  0b00011001,
-  0b00111101,
-  0b10011000,
-  0b10011000,
-  0b10000001,
-  0b11001111,
-};
+byte FrameBuffer[8] = {0,0,0,0,0,0,0,0};
+// {
+//   0b11110011,
+//   0b10000001,
+//   0b00011001,
+//   0b00111101,
+//   0b10011000,
+//   0b10011000,
+//   0b10000001,
+//   0b11001111,
+// };
 
 void drawEyes(int eyes[4])
 {
@@ -116,6 +118,15 @@ void updateDisplay()
   lc.setRow(0, 7, OutputBuffer[7]);
 }
 
+void clearDisplay()
+{
+  lc.clearDisplay(0);
+  for (int i=0; i<8; i++)
+  {
+    FrameBuffer[i] = 0;
+  }
+}
+
 void addEvent(void (*func)(int*), int (*arg)[4], unsigned long delay)
 {
   if (events[nextEvent].func == NULL)
@@ -143,15 +154,15 @@ void addEvent(void (*func)(int*), int (*arg)[4], unsigned long delay)
 void closeEyes()
 {
   addEvent(&drawEyes, &Blink1, 0);
-  addEvent(&drawEyes, &Blink2, 20);
-  addEvent(&drawEyes, &Blink2, 20);
+  addEvent(&drawEyes, &Blink2, 50);
+  addEvent(&drawEyes, &Blink2, 50);
 }
 
 void openEyes()
 {
   addEvent(&drawEyes, &Blink2, 0);
-  addEvent(&drawEyes, &Blink1, 20);
-  addEvent(&drawEyes, CurrentEyes, 20);
+  addEvent(&drawEyes, &Blink1, 50);
+  addEvent(&drawEyes, CurrentEyes, 50);
 }
 
 void blink()
@@ -194,9 +205,15 @@ void yawn()
 
 void updateLightLevel()
 {
-  // LightLevel = analogRead(LIGHT);
-  LightLevel = (LightLevel + analogRead(LIGHT)) / 2;
-  // Serial.println(LightLevel);
+  // Manually read ADC
+  ADC->SWTRIG.bit.START = 1;                       // Initiate a software trigger to start an ADC conversion
+  while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for write synchronization
+  while(!ADC->INTFLAG.bit.RESRDY);                 // Wait for the conversion to complete
+  ADC->INTFLAG.bit.RESRDY = 1;                     // Clear the result ready (RESRDY) interrupt flag
+  while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for read synchronization
+  int result = ADC->RESULT.reg;                    // Read the ADC result
+  
+  LightLevel = (LightLevel + result) / 2;
 }
 
 void sleep()
@@ -222,7 +239,7 @@ void sleep()
   delay(250);
   drawEyes(Blink2);
   delay(2000);
-  lc.clearDisplay(0);
+  clearDisplay();
   unsigned long litSince = 0;
   while (true)
   {
@@ -274,7 +291,7 @@ void sleep()
 void drawBarDisplay(int row, byte val)
 {
   byte e = (8 - (val + 1 +(millis() % 200 > 100)) / 2);
-  lc.setRow(0, row, 0xFF << e);
+  lc.setRow(0, 7 - row, 0xFF >> e + 1 | ((e > 7 ? 0 : 1) << 7));
 }
 
 void screenBrightnessConfig()
@@ -285,7 +302,7 @@ void screenBrightnessConfig()
   closeEyes();
   finishEvents();
   updateButtons();
-  lc.clearDisplay(0);
+  clearDisplay();
   drawEyes(BrightnessIcon);
 
   while (!buttonPressed(&Butt2Hist))
@@ -303,6 +320,7 @@ void screenBrightnessConfig()
   }
 
   EEPROM.write(BrightnessAddr, Brightness);
+  EEPROM.commit();
   // Serial.println(EEPROM.read(BrightnessAddr));
 
   drawMouth(*CurrentMouth);
@@ -325,7 +343,7 @@ void sleepThreshConfig(bool anim)
   }
 
   updateButtons();
-  lc.clearDisplay(0);
+  clearDisplay();
   drawEyes(SleepThreshIcon);
 
   while (!buttonPressed(&Butt2Hist))
@@ -361,9 +379,8 @@ void sleepThreshConfig(bool anim)
 
   EEPROM.write(SleepThreshAddr, SleepThresh);
   EEPROM.write(WakeThreshAddr, WakeThresh);
+  EEPROM.commit();
   // Serial.println(EEPROM.read(SleepThreshAddr));
-
-
 
   if (anim)
   {
@@ -373,7 +390,7 @@ void sleepThreshConfig(bool anim)
   }
   else
   {
-    lc.clearDisplay(0);
+    clearDisplay();
   }
 
   // prevent instant random action
@@ -402,6 +419,7 @@ void toggleStrongMode()
   }
 
   EEPROM.write(StrongModeAddr, StrongMode);
+  EEPROM.commit();
 
   // prevent instant random action
   LastAction = millis();
@@ -614,12 +632,16 @@ void updateButtons()
 
 bool buttonPressed(unsigned int* history)
 {
-  return *history == 0xFFFE;
+  return (*history & 0xFF) == 0xFE;
 }
 
 void setup()
 {
   Serial.begin(57600);
+
+  //while(!Serial);                               // Wait for the console to open
+
+  //Serial.println("SERIAL ONLINE");
 
   Brightness = EEPROM.read(BrightnessAddr);
   if (Brightness == 255) Brightness = 0;
@@ -637,11 +659,26 @@ void setup()
   pinMode(BUTT1, INPUT_PULLUP);
   pinMode(BUTT2, INPUT_PULLUP);
   pinMode(BUTT3, INPUT_PULLUP);
+
+  //Serial.println("Initializing ADC");
+
+  // Manually configure ADC for light sensor
   pinMode(LIGHT, INPUT_PULLUP);
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV512 |    // Divide Clock ADC GCLK by 512 (48MHz/512 = 93.7kHz)
+                   ADC_CTRLB_RESSEL_12BIT;         // Set ADC resolution to 12 bits
+  while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for synchronization
+  ADC->SAMPCTRL.reg = 0x08;                        // Set max Sampling Time Length to half divided ADC clock pulse times SAMPCTRL (341.33us)
+  ADC->INPUTCTRL.bit.MUXPOS = 0x0;                 // Set the analog input to A0
+  while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for synchronization
+  ADC->CTRLA.bit.ENABLE = 1;                       // Enable the ADC
+  while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for synchronization
 
-  randomSeed(analogRead(A7));
+  //Serial.println("ADC ONLINE");
 
-  LightLevel = analogRead(LIGHT);
+  updateLightLevel();
+  randomSeed(LightLevel);
+
+  //Serial.println("SEED SET");
 
   CurrentEyes = &Eyes;
   CurrentMouth = &Smile;
@@ -658,6 +695,15 @@ void setup()
 
 void loop()
 {
+  // Serial.print("Butt1: ");
+  // Serial.print(Butt1Hist, BIN);
+  // Serial.print(" Butt2: ");
+  // Serial.print(Butt2Hist, BIN);
+  // Serial.print(" Butt3: ");
+  // Serial.print(Butt3Hist, BIN);
+  // Serial.print(" LightSensor: ");
+  // Serial.println(digitalRead(LIGHT));
+
   updateButtons();
 
   // update light level and check if sleepy time
@@ -672,7 +718,7 @@ void loop()
   // Check for button presses
   if(buttonPressed(&Butt1Hist))
   {
-    // Serial.println("Butt 1 pressed");
+    //Serial.println("Butt 1 pressed");
     sleepThreshConfig(true);
     return;
   }
@@ -680,7 +726,7 @@ void loop()
   // Check for button presses
   if(buttonPressed(&Butt2Hist))
   {
-    // Serial.println("Butt 2 pressed");
+    //Serial.println("Butt 2 pressed");
     toggleStrongMode();
     return;
   }
@@ -688,7 +734,7 @@ void loop()
   // Check for button presses
   if(buttonPressed(&Butt3Hist))
   {
-    // Serial.println("Butt 3 pressed");
+    //Serial.println("Butt 3 pressed");
     screenBrightnessConfig();
     return;
   }
@@ -716,12 +762,14 @@ void loop()
   {
     randomAction();
     LastAction = millis();
-    ActionInterval =  1000; //random(3000, 8000);
+    ActionInterval = random(3000, 8000);
   }
 
   updateEvents();
 
-  delay(5);
+  // delay until it's time to start the next frame.
+  while(millis() - LastFrame < FrameInterval)
+  LastFrame = millis();
 }
 
 void serialEvent() {
